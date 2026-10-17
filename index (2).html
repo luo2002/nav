@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#11110f">
+  <meta name="description" content="简洁优雅的导航页">
+  <title>地址导航</title>
+  <style>
+    /* ===== 全局配色：可在这里调整页面主题 ===== */
+    :root {
+      color-scheme: dark;
+      --bg: #0b0c0b;
+      --panel: rgba(255, 255, 255, .055);
+      --panel-hover: rgba(255, 255, 255, .095);
+      --line: rgba(226, 213, 151, .28);
+      --gold: #e5d99b;
+      --text: #f2f0e8;
+      --muted: #a6a69f;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+                   "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(188, 159, 71, .12), transparent 42%),
+        radial-gradient(ellipse at 0% 100%, rgba(80, 88, 76, .12), transparent 38%),
+        var(--bg);
+    }
+
+    /* 背景装饰光斑，不影响点击 */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .35;
+      background-image: radial-gradient(rgba(255,255,255,.16) .6px, transparent .6px);
+      background-size: 5px 5px;
+      mask-image: linear-gradient(to bottom, transparent, #000 30%, transparent);
+    }
+
+    .page {
+      width: min(100%, 560px);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 主卡片：毛玻璃效果 */
+    .card {
+      overflow: hidden;
+      padding: clamp(26px, 6vw, 42px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.035));
+      box-shadow: 0 24px 80px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08);
+      -webkit-backdrop-filter: blur(28px) saturate(140%);
+      backdrop-filter: blur(28px) saturate(140%);
+    }
+
+    .brand {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(30px, 7vw, 42px);
+      line-height: 1.25;
+      font-weight: 750;
+      letter-spacing: .12em;
+      color: var(--gold);
+      text-shadow: 0 0 28px rgba(229,217,155,.22);
+    }
+    .subtitle {
+      margin: 12px 0 30px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: .04em;
+    }
+
+    /* 链接列表：需要增加链接时，复制一个 .nav-link 区块即可 */
+    .nav-list { display: grid; gap: 13px; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 68px;
+      padding: 17px 20px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: var(--panel);
+      color: var(--text);
+      text-align: center;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      overflow-wrap: anywhere;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-link:hover {
+      background: var(--panel-hover);
+      border-color: rgba(229,217,155,.56);
+      transform: translateY(-2px);
+    }
+    .nav-link:active { transform: scale(.985); }
+    .nav-link:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 3px;
+    }
+
+    .separator {
+      height: 1px;
+      margin: 30px 0 18px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .footer strong { color: var(--gold); font-weight: 600; }
+
+    /* 广告位：将广告代码或图片放入此区域 */
+    .ad-slot {
+      margin-top: 18px;
+      min-height: 100px;
+      padding: 14px;
+      border: 1px dashed rgba(255,255,255,.22);
+      border-radius: 18px;
+      background: rgba(255,255,255,.025);
+      color: #8e8e87;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .ad-slot small { display: block; color: #74746e; }
+
+    /* 手机端：减少边距，让卡片更贴合窄屏 */
+    @media (max-width: 480px) {
+      body { padding-left: 12px; padding-right: 12px; align-items: flex-start; }
+      .page { margin: 10px auto; }
+      .card { padding: 26px 18px; border-radius: 22px; }
+      .nav-link { min-height: 62px; padding: 15px 12px; font-size: 16px; }
+      .subtitle { margin-bottom: 25px; }
+    }
+
+    /* 电脑端：卡片略宽、按钮更舒展 */
+    @media (min-width: 900px) {
+      .page { width: min(100%, 600px); }
+      .nav-list { gap: 15px; }
+      .nav-link { min-height: 72px; font-size: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="card" aria-label="资源导航">
+      <!-- 修改这里的站点名称 -->
+      <h1 class="brand">地址导航</h1>
+
+      <!-- 修改这里的说明文字或永久发布页地址 -->
+      <p class="subtitle">永久发布页：<span>www.example.com</span></p>
+
+      <nav class="nav-list" aria-label="常用链接">
+        <!-- ===== 导航链接开始：复制下面的 a 标签即可无限添加链接 ===== -->
+
+        <a class="nav-link" href="https://xi678.blogspot.com/2026/10/qs.html" target="_blank" rel="noopener noreferrer">美股券商</a>
+        <a class="nav-link" href="https://xi678.blogspot.com/2026/10/yh.html" target="_blank" rel="noopener noreferrer">海外银行</a>
+        
+        <!-- <a class="nav-link" href="https://example.com" target="_blank" rel="noopener noreferrer">悬赏发布平台</a> -->
+        <a class="nav-link" href="https://my.racknerd.com/aff.php?aff=21516" target="_blank" rel="noopener noreferrer">vps推荐</a>
+        <a class="nav-link" href="https://xi678.blogspot.com" target="_blank" rel="noopener noreferrer">个人博客</a>
+        <!-- <a class="nav-link" href="https://t.me/xi6768" target="_blank" rel="noopener noreferrer">Telegram</a> -->
+        
+
+
+        <!-- 示例：添加新链接时复制此行，修改 href 和显示文字
+        <a class="nav-link" href="https://your-link.com" target="_blank" rel="noopener noreferrer">我的新链接</a>
+        -->
+        <!-- ===== 导航链接结束 ===== -->
+      </nav>
+
+      <div class="separator"></div>
+
+      <!-- 修改页脚文字 -->
+      <footer class="footer"><strong>@2026</strong> </footer>
+    </section>
+
+    <!-- ===== 广告位开始：可放广告联盟代码、图片或自定义 HTML ===== -->
+    <aside class="ad-slot" aria-label="广告位">
+      <div><p>广告展示区域</p><br>
+        <small>
+          <a href="https://my.racknerd.com/aff.php?aff=21516"><img src="https://racknerd.com/banners/320x50.gif" alt="RackNerd Mobile Leaderboard Banner" width="320" height="50"></a>
+        </small><br>
+      </div>
+    </aside>
+    <!-- ===== 广告位结束 ===== -->
+  </main>
+</body>
+</html>
